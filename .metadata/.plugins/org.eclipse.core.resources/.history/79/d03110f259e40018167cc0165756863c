@@ -74,13 +74,11 @@ public class ArrayListBasics {
 
 	private static void removeElements(List<Double> numbers) {
 		ArrayList<Double> temp = new ArrayList<Double>();
-		for(int i = 0; i < numbers.size(); i++) {
-			if(numbers.get(i) >= 5 && numbers.get(i) <= 10) {
-				temp.add(numbers.get(i));
-			}
+		for(int i = 5; i < 10; i++) {
+			temp.add(numbers.get(i));
 		}
 		numbers.clear();
-		for(int i = 0; i<temp.size(); i++) {
+		for(int i = 0; i<5; i++) {
 			numbers.add(temp.get(i));
 		}
 	}
