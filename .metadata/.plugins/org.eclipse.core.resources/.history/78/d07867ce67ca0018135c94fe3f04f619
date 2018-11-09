@@ -1,0 +1,289 @@
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class BlackjackGameManager {
+	public static final int DEALER_VALUE = 17;
+	public static final int BLACKJACK = 21;
+
+	private PanelBlackjack panel;
+	private Deck deck;
+	private ArrayList<BlackjackPlayer> players;
+	private BlackjackDealer dealer;
+
+	private Scanner scan;
+
+	public BlackjackGameManager(int playersNum, PanelBlackjack panel) {
+		scan = new Scanner(System.in);
+		this.panel = panel;
+
+		deck = new Deck();
+		deck.shuffle();
+
+		int xDealer = (int) (PanelBlackjack.WIDTH / 2.5);
+		int yDealer = 70;
+		dealer = new BlackjackDealer("Dealer", 1000, xDealer, yDealer);
+
+		players = new ArrayList<BlackjackPlayer>();
+
+		for (int i = playersNum; i > 0; i--) {
+			System.out.println("Player " + (playersNum - i + 1) + ": what is your name?");
+			int xPlayer = 50 + ((i - 1) * (1440 / playersNum));
+			int yPlayer = 470;
+			players.add(new BlackjackPlayer(scan.nextLine(), 100, xPlayer, yPlayer));
+		}
+
+	}
+
+	public ArrayList<BlackjackPlayer> getPlayers() {
+		return players;
+	}
+
+	public void setPlayers(ArrayList<BlackjackPlayer> players) {
+		this.players = players;
+	}
+
+	public BlackjackDealer getDealer() {
+		return dealer;
+	}
+
+	public void setDealer(BlackjackDealer dealer) {
+		this.dealer = dealer;
+	}
+
+	public Deck getDeck() {
+		return deck;
+	}
+
+	public void setDeck(Deck deck) {
+		this.deck = deck;
+	}
+
+	public void delay(int time) {
+		try {
+			Thread.sleep(time);
+		} catch (InterruptedException ex) {
+			Thread.currentThread().interrupt();
+		}
+	}
+
+	public void playRound() {
+
+		System.out.println("Start round?");
+		scan.nextLine();
+		scan.nextLine();
+
+		clearAllHands();
+
+		placeBets();
+
+		dealStartingHand();
+
+		displayPlayerInfo();
+		
+		int totalDealerTransaction = 0; // how much the dealer has made/lost this round
+		
+		if (checkForDealerBlackjack(totalDealerTransaction) == false) { // if the dealer does not have blackjack
+			checkForPlayerBlackjack(totalDealerTransaction); //checks for player blackjacks
+			
+			playAllPlayers();
+			playDealer();
+
+			calculateTransactions(totalDealerTransaction);
+		}
+
+		resetDeck();
+	}
+
+	private void clearAllHands() {
+		// clear all hands
+		dealer.clearHand();
+		dealer.resetTransactions();
+		for (int i = 0; i < players.size(); i++) {
+			players.get(i).clearHand();
+			players.get(i).resetTransactions();
+		}
+		panel.updateGraphics();
+	}
+
+	private void placeBets() {
+		for (int i = 0; i < players.size(); i++) {
+			System.out.println("Player " + players.get(i).getName() + ": What is your bet (6 - 500)");
+			String betString = scan.next();
+			int bet;
+			try {
+				bet = Integer.parseInt(betString);
+			} catch (NumberFormatException ex) {
+				bet = 5;
+			}
+			if (bet < 6)
+				bet = 6;
+			else if (bet > 500)
+				bet = 500;
+
+			if (bet % 2 == 1) // making all bets even
+				bet--;
+
+			players.get(i).addBet(bet);
+			panel.updateGraphics();
+		}
+	}
+
+	private void dealStartingHand() {
+
+		// draws 2 cards for each player and the dealer
+		for (int c = 0; c < 2; c++) {
+			dealer.add(deck.drawACard());
+			if (c == 0) { // if first card
+				// sets the first card to be face down
+				dealer.setFaceUp(0, false);
+			}
+			panel.updateGraphics();
+			delay(250);
+
+			for (int i = 0; i < players.size(); i++) {
+				players.get(i).add(deck.drawACard());
+				panel.updateGraphics();
+				delay(250);
+			}
+		}
+	}
+
+	private void displayPlayerInfo() {
+		for (int i = 0; i < players.size(); i++) {
+			System.out.println(players.get(i));
+		}
+
+		System.out.println(dealer.getName() + ": ???, " + dealer.getHand().get(1) + "\n");
+	}
+
+	private boolean checkForDealerBlackjack(int totalDealerTransaction) {
+		if (dealer.getHandValue() == BlackjackGameManager.BLACKJACK) { // if the dealer has blackjack
+			dealer.setFaceUp(0, true);
+			System.out.println("Dealer has blackjack!!");
+			for (int i = 0; i < players.size(); i++) {
+				if (players.get(i).getHandValue() != BlackjackGameManager.BLACKJACK) { // if the player does not have
+																						// blackjack
+					int bet = players.get(i).getBet();
+					totalDealerTransaction += bet; // dealer gets the bet
+					players.get(i).addMoney(-1 * bet);
+				}
+			}
+			dealer.addMoney(totalDealerTransaction);
+			panel.updateGraphics();
+			return true;
+		}
+		return false;
+	}
+
+	private void checkForPlayerBlackjack(int totalDealerTransaction) {
+		for (int i = 0; i < players.size(); i++) {
+			if (players.get(i).getHandValue() == BlackjackGameManager.BLACKJACK) { // if the player has blackjack
+				int bet = players.get(i).getBet();
+				totalDealerTransaction += (int) (-1.5 * bet); // dealer loses the bet * 1.5
+				players.get(i).addMoney((int) (1.5 * bet)); // player gets the bet *1.5
+				players.get(i).setPlayerStatus(BlackjackPlayer.BLACKJACK);
+			}
+		}
+		dealer.addMoney(totalDealerTransaction);
+		panel.updateGraphics();
+	}
+
+	private void playAllPlayers() { // FIX THE MEATHOD NAME
+		for (int i = 0; i < players.size(); i++) {
+			BlackjackPlayer player = players.get(i);
+			if (player.getPlayerStatus() != BlackjackPlayer.BLACKJACK) { // if the player has blackjack he has already
+																			// been payed
+				String question = "Would you like to hit, stand, or double down? (h/s/d)";
+				boolean canDoubleDown = true;
+				boolean playerFinished = false; // whether the player is finished with this round
+				while (playerFinished == false) {
+					System.out.println(player);
+					
+					System.out.println(question);
+					String input = scan.next();
+					if (input.equals("h")) { // if hitting
+						players.get(i).add(deck.drawACard());
+						panel.updateGraphics();
+
+						System.out.println(player + "\n");
+					} else if (input.equals("d") && canDoubleDown) { // if doubling down
+						if (player.getTotalMoney() >= player.getBet() * 2) { // if the player has enough money
+							players.get(i).addBet(player.getBet());
+							players.get(i).add(deck.drawACard());
+							panel.updateGraphics();
+							players.get(i).setPlayerStatus(BlackjackPlayer.DOUBLE_DOWN);
+							playerFinished = true;
+
+							System.out.println(player + "\n");
+						} else {
+							System.out.println("You do not have enough money to double down");
+						}
+					} else {
+						playerFinished = true;
+					}
+					question = "Would you like to hit or stand? (h/s)";
+					canDoubleDown = false;
+
+					if (player.getHandValue() > BLACKJACK) {
+						players.get(i).setPlayerStatus(BlackjackPlayer.BUST);
+						System.out.println("Your hand is a bust :(\n");
+						playerFinished = true;
+					} else if (player.getHandValue() == BLACKJACK) {
+						// blackjack
+					}
+				}
+			}
+
+		}
+	}
+
+	private void playDealer() {
+		// sets the first card to be face up
+		dealer.setFaceUp(0, true);
+
+		panel.updateGraphics();
+		delay(350);
+
+		while (dealer.getHandValue() < DEALER_VALUE) {
+			dealer.add(deck.drawACard());
+			panel.updateGraphics();
+			delay(350);
+		}
+		System.out.println(dealer);
+	}
+
+	private void calculateTransactions(int totalDealerTransaction) {
+		for (int i = 0; i < players.size(); i++) {
+			players.get(i).resetTransactions();
+
+			int bet = players.get(i).getBet();
+			if (players.get(i).getComparativeHandValue() > dealer.getComparativeHandValue()) { // player won
+				if (players.get(i).getPlayerStatus() == BlackjackPlayer.DOUBLE_DOWN) {
+					totalDealerTransaction += (int) (-1.5 * bet); // dealer loses money
+					players.get(i).addMoney((int) (1.5 * bet)); // bet + money from dealer added to player
+				} else {
+					totalDealerTransaction += -1 * bet; // dealer loses money
+					players.get(i).addMoney(bet); // bet + money from dealer added to player
+				}
+			} else if (players.get(i).getComparativeHandValue() < dealer.getComparativeHandValue()) { // dealer won
+				totalDealerTransaction += bet; // dealer gets the bet
+				players.get(i).addMoney(-1 * bet);
+			}
+
+			players.get(i).setBet(0);
+		}
+		dealer.addMoney(totalDealerTransaction);
+
+		panel.updateGraphics();
+	}
+
+	private void resetDeck() {
+		if (deck.getSize() < Deck.SIZE / 2) { // if half the deck is used
+			deck.initialize();
+			deck.shuffle();
+			System.out.println("Reset deck");
+		}
+	}
+
+}

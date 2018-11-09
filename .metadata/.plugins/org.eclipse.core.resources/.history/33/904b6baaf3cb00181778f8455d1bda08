@@ -1,0 +1,92 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.*;
+
+public class ShapePanel extends JPanel implements MouseListener {
+	private static final Color BACKGROUND = new Color(242, 43, 43);
+
+	// ** Create variables for shape size and color
+	private int shapeSize = 10;
+	private Color shapeColor = Color.blue;
+
+	// **Create the reference for the array
+	// ** the arraySize and the nextIndex
+
+	private Shape[] shapes;
+	private int arraySize = 10;
+	private int nextIndex = 0;
+
+	Color myColor;
+	Timer t;
+
+//************** Constructor  ***********************
+	public ShapePanel() {
+
+		myColor = BACKGROUND;
+		// *************** Initialize the index and the array
+
+		// **************************************************
+		// timer to repaint every 20 nanoseconds
+		// The listener for this is at the bottom
+		t = new Timer(20, new Listener());
+		t.start();
+		addMouseListener(this);
+	}
+
+	public void paintComponent(Graphics g) {
+
+		// Overwrite what was on the screen before
+		// with a blank background
+		g.setColor(myColor);
+		g.fillRect(0, 0, getWidth(), getHeight());
+
+		// ********** draw the shapes and the lines
+
+	}
+
+	// *********** Implement the methods for any interfaces
+
+//**  The method below could be useful to test the mouse interaction
+	void saySomething(String eventDescription, MouseEvent e) {
+		System.out.println(eventDescription + " detected on " + e.getComponent().getClass().getName() + "." + "\n");
+	}
+
+	private class Listener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			repaint();
+
+		}
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+}

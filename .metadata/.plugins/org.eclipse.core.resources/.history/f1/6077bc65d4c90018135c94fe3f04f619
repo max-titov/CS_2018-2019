@@ -1,0 +1,41 @@
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.util.ArrayList;
+
+public class BlackjackDealer extends BlackjackPlayer{
+	
+	public BlackjackDealer(String name, int x, int y) {
+		super(name, x, y);
+	}
+	
+	public void setFaceUp(int cardNum, boolean faceUp) { // sets a card in the hand to be faceUp/faceDown
+		ArrayList<Card> dealerHand = this.getHand();
+		Card card = dealerHand.get(cardNum);
+		card.setFaceUp(faceUp);
+		dealerHand.set(cardNum, card);
+		this.setHand(dealerHand);
+	}
+	
+	//graphics
+	
+	@Override
+	public void setCardPositions() {
+		ArrayList<Card> hand = this.getHand();
+		for (int c = 0; c < hand.size(); c++) {// iterates through all cards
+			hand.get(c).setX(c * 35 + this.getX());
+			hand.get(c).setY(30 + this.getY());
+		}
+		this.setHand(hand);
+	}
+	
+	@Override
+	public void display(Graphics g) {
+		g.setColor(Color.BLACK);
+		g.setFont(new Font("SansSerif", Font.BOLD, 32));
+		g.drawString(this.getName(), this.getX(), this.getY());
+
+		for (Card card : this.getHand())
+			card.draw(g);
+	}
+}
