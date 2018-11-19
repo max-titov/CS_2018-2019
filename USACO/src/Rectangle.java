@@ -110,26 +110,25 @@ public class Rectangle {
 		if (other.getY2() > this.getY1() && other.getY2() < this.getY2()) {
 			overlapY2 = true;
 		}
-		System.out.println(overlapX1);
-		System.out.println(overlapX2);
-		System.out.println(overlapY1);
-		System.out.println(overlapY2);
-		System.out.println();
+//		System.out.println(overlapX1);
+//		System.out.println(overlapX2);
+//		System.out.println(overlapY1);
+//		System.out.println(overlapY2);
+//		System.out.println();
 
 		if (overlapX1 && overlapX2 && overlapY1 && overlapY2) { // completely overlap
 			return other.getHeight() * other.getWidth();
-		} else if ((overlapX1 && overlapX2) && overlapY1) { //overlap on right side (overlapX1 && overlapX2) && overlapY1
+		} else if ((overlapY1 && overlapY2) && overlapX1) { //overlap on right side
 			System.out.println("right side");
 			return other.getHeight() * (other.getWidth() - dif(other.getX2(), this.getX2()));
-		} else if ((overlapY1 && overlapY2) && overlapX2) { //overlap on left side (overlapX1 && overlapX2) && overlapY2
+		} else if ((overlapY1 && overlapY2) && overlapX2) { //overlap on left side
 			System.out.println("left side");
 			return other.getHeight() * (other.getWidth() - dif(this.getX1(), other.getX1()));
-		} else if ((overlapY1 && overlapY2) && overlapX1) { //overlap on top side (overlapY1 && overlapY2) && overlapX1
+		} else if ((overlapX1 && overlapX2) && overlapY1) { //overlap on top side
 			System.out.println("top side");
 			return (other.getHeight() - dif(other.getY1(), this.getY1())) * other.getWidth();
-		} else if (false) { //overlap on bottom side (overlapY1 && overlapY2) && overlapX2
+		} else if ((overlapX1 && overlapX2) && overlapY2) { //overlap on bottom side
 			System.out.println("bottom side");
-			System.out.println(other.getHeight() +" - " + dif(this.getY2(), other.getY2()) +" * " + other.getWidth());
 			return (other.getHeight() - dif(this.getY2(), other.getY2())) * other.getWidth();
 		}
 		
@@ -141,7 +140,15 @@ public class Rectangle {
 			return dif(this.getX2(), other.getX1()) * dif(this.getY1(), other.getY2());
 		} else if(overlapX1 && overlapY2) { //overlap on bottom left;
 			return dif(this.getX1(), other.getX2()) * dif(this.getY2(), other.getY1());
-		} else {
+		} 
+		
+		else if(overlapY1 && overlapY2 && other.getX2()>this.getX2() && other.getX1()<this.getX1()) {
+			return dif(this.getX1(), this.getX2()) * dif(other.getY1(), other.getY2());
+		}else if(overlapX1 && overlapX2 && other.getY2()>this.getY2() && other.getY1()<this.getY1()) {
+			return dif(this.getY1(), this.getY2()) * dif(other.getX1(), other.getX2());
+		}
+		
+		else {
 			return 0;
 		}
 	}

@@ -12,7 +12,7 @@ public class BlockedBillboard {
 		
 		try
 		{
-			String filename = "src/1.in";
+			String filename = "src/5.in";
 			file = new Scanner (new File(filename));
 			String line1 = file.nextLine();
 			String line2 = file.nextLine();
@@ -33,20 +33,22 @@ public class BlockedBillboard {
 		}
 		
 		int overlapTB1 = truck.overlap(board1);
-		System.out.println(overlapTB1);
+		//System.out.println(overlapTB1);
 		int overlapB1T = board1.overlap(truck);
-		System.out.println(overlapB1T);
+		//System.out.println(overlapB1T);
 		int overlapTB2 = truck.overlap(board2);
-		System.out.println(overlapTB2);
+		//System.out.println(overlapTB2);
 		int overlapB2T = board2.overlap(truck);
-		System.out.println(overlapB2T);
+		//System.out.println(overlapB2T);
 		
 		if(overlapTB1 < overlapB1T) overlapTB1 = overlapB1T;
 		
 		if(overlapTB2 < overlapB2T) overlapTB2 = overlapB2T;
 		
-		System.out.println(board1.area() - overlapTB1);
-		System.out.println(board2.area() - overlapTB2);
+//		System.out.println(board1.area() - overlapTB1);
+//		System.out.println(board2.area() - overlapTB2);
+		
+		System.out.println((board1.area() - overlapTB1)+(board2.area() - overlapTB2));
 		
 
 	}
