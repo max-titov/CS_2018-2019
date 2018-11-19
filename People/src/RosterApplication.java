@@ -14,7 +14,7 @@ public class RosterApplication<E> {
 		try {
 			System.out.print("Enter a file name (without the extension .txt): ");
 			String filename = input.nextLine();
-			input = new Scanner(new File(filename + ".txt"));
+			input = new Scanner(new File("src/"+filename + ".txt"));
 			//input = new Scanner(new File("roster.txt"));
 		} catch (FileNotFoundException e) {
 			System.out.println("Error: File not found.");
