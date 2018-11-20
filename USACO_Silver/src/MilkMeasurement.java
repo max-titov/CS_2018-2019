@@ -39,132 +39,186 @@ public class MilkMeasurement {
 					else return 0;
 			    }
 			});
-			for(Log log: logs) {
-				System.out.println(log);
+			for(int i = 0; i< logs.size(); i++) {
+				System.out.println(i+" "+logs.get(i));
 			}
 			System.out.println();
 			
-			ArrayList<Integer> belowNum = new ArrayList<Integer>(logNum);
-			ArrayList<Integer> belowVal = new ArrayList<Integer>(logNum);
+			ArrayList<Cow> below = new ArrayList<Cow>(logNum);	
+			ArrayList<Cow> above = new ArrayList<Cow>(logNum);
+			
 			int max = G;
-			
-			ArrayList<Integer> aboveNum = new ArrayList<Integer>(logNum);
-			ArrayList<Integer> aboveVal = new ArrayList<Integer>(logNum);
-			
+			int maxCowNum = -1;
 			int count = 0;
-
+			
 			for(int i = 0; i < logNum; i++) {
 				boolean topChanged = false;
 				
 				int cow = logs.get(i).getCow();
 				int change = logs.get(i).getChange();
-				if(belowNum.contains(cow)) {
-					int index = belowNum.indexOf(cow);
-					int newVal = belowVal.get(index) + change;
-					if(newVal < G) { //keep in below
-						belowVal.set(index, newVal);
+				
+				if(containsCow(below, cow)) {
+					int index = indexOfCow(below, cow);
+					int newVal = below.get(index).getValue() + change;
+					if(newVal < G) {
+						below.get(index).setValue(newVal);
+						System.out.println(i+" below to below");
 					}
-					else if (newVal > G) { //move to above
-						belowNum.remove(index);
-						belowVal.remove(index);
+					else if(newVal > G) {
+						below.remove(index);
 						
-						aboveNum.add(cow);
-						aboveVal.add(newVal);
-						
-						if(newVal > max) {
+						above.add(new Cow(cow, newVal));
+						if(newVal >= max) {
 							max = newVal;
-							topChanged = true;
+							if(cow != maxCowNum) {
+								maxCowNum = cow;
+								topChanged = true;
+							}
 						}
+						System.out.println(i+" below to above");
 					}
-					else { //remove since it is equal to G
-						belowNum.remove(index);
-						belowVal.remove(index);
-						
-						if(aboveNum.size() == 0) {
-							topChanged = true;
+					else {
+						if(change > 0) {
+							above.remove(index);
+							if(newVal >= max) {
+								max = newVal;
+								if(cow != maxCowNum) {
+									maxCowNum = cow;
+									topChanged = true;
+								}
+							}
+							System.out.println(i+" below to G");
+						}
+						else {
+							above.remove(index);
+							if(above.size() == 0) {
+								topChanged = true;
+							}
+							System.out.println(i+" below to G");
 						}
 					}
 				}
-				else if(aboveNum.contains(cow)) {
-					int index = aboveNum.indexOf(cow);
-					int newVal = aboveVal.get(index) + change;
-					int oldVal = aboveVal.get(index);
-					if(newVal > G) { //keep in above
-						aboveVal.set(index, newVal);
+				else if(containsCow(above, cow)) {
+					int index = indexOfCow(above, cow);
+					int oldVal = above.get(index).getValue();
+					int newVal = above.get(index).getValue() + change;
+					if(newVal < G) {
+						above.remove(index);
+						
+						below.add(new Cow(cow, newVal));
+						//change max
+						int tempMax = G;
+						int tempMaxCowNum = 0;
+						for(int k = 0; k< above.size(); k++) {
+							if(above.get(k).getValue() > tempMax) {
+								tempMax = above.get(k).getValue();
+								tempMaxCowNum = k;
+							}
+						}
+						if(tempMax > max && tempMaxCowNum != cow) {
+							max = tempMax;
+							maxCowNum = cow;
+							topChanged = true;
+						}
+						System.out.println(i+" above to below");
+					}
+					else if(newVal > G) {
+						above.get(index).setValue(newVal);
 						if(newVal > max) {
 							max = newVal;
-							topChanged = true;
-						}
-					}
-					else if (newVal < G) { //move to below
-						aboveNum.remove(index);
-						aboveVal.remove(index);
-						
-						belowNum.add(cow);
-						belowVal.add(newVal);
-						
-						if(oldVal == max) {
-							topChanged = true;
-							if(aboveNum.size() == 0) {
-								max = G;
-							}else {
-								int tempMax = G;
-								for(int val: aboveVal) {
-									if(val>tempMax) tempMax = val;
-								}
-								max = tempMax;
+							if(cow != maxCowNum) {
+								maxCowNum = cow;
+								topChanged = true;
 							}
-							
 						}
-					}
-					else { //remove since it is equal to G
-						aboveNum.remove(index);
-						aboveVal.remove(index);
-						
-						if(oldVal == max) {
-							topChanged = true;
-							if(aboveNum.size() == 0) {
-								max = G;
-							}else {
-								int tempMax = G;
-								for(int val: aboveVal) {
-									if(val>tempMax) tempMax = val;
+						else if(oldVal == max && change <0) {
+							int tempMax = G;
+							for(int k = 0; k< above.size(); k++) {
+								if(above.get(k).getValue() > tempMax && k != index) {
+									tempMax = above.get(k).getValue();
 								}
-								max = tempMax;
 							}
-							
+							if(tempMax == newVal) {
+								max = tempMax;
+								maxCowNum = cow;
+								topChanged = true;
+							}
+						}
+						System.out.println(i+" above to above");
+					}
+					else {
+						if(change > 0) {
+							above.remove(index);
+							if(newVal >= max) {
+								max = newVal;
+								if(cow != maxCowNum) {
+									maxCowNum = cow;
+									topChanged = true;
+								}
+							}
+							System.out.println(i+" above to G");
+						}
+						else {
+							above.remove(index);
+							if(above.size() == 0) {
+								topChanged = true;
+							}
+							System.out.println(i+" above to G");
 						}
 					}
 				}
 				else {
 					int newVal = G + change;
-					if(newVal < G) {
-						belowNum.add(cow);
-						belowVal.add(newVal);
-						
-						if(aboveNum.size() == 0) {
-							topChanged = true;
-						}
-					}else if(newVal > G) {
-						aboveNum.add(cow);
-						aboveVal.add(newVal);
-						
-						if(newVal > max) {
+					if(change > 0) {
+						above.add(new Cow(cow, newVal));
+						if(newVal >= max) {
 							max = newVal;
+							if(cow != maxCowNum) {
+								maxCowNum = cow;
+								topChanged = true;
+							}
+						}
+						System.out.println(i+" G to above");
+					}
+					else {
+						below.add(new Cow(cow, newVal));
+						if(above.size() == 0) {
 							topChanged = true;
 						}
+						System.out.println(i+" G to below");
 					}
 				}
-				if(topChanged) count++;
+				if(topChanged) {
+					System.out.println(i+" *****TOP CHANGED*****");
+					count++;
+				}
 			}
 			System.out.println(count);
 			
+//			for(Cow cow: above) {
+//				System.out.println(cow);
+//			}
+
 		} 
 		catch (FileNotFoundException e)
 		{
 			System.out.println("fileNotFound");
 		}
 
+	}
+	
+	public static boolean containsCow(ArrayList<Cow> cows, int num) {
+		for(Cow cow: cows) {
+			if(cow.getNum() == num) return true;
+		}
+		return false;
+	}
+	
+	public static int indexOfCow(ArrayList<Cow> cows, int num) {
+		for(int i = 0; i < cows.size(); i++) {
+			if(cows.get(i).getNum() == num) return i;
+		}
+		return -1;
 	}
 
 }
