@@ -25,6 +25,6 @@ public class Cow {
 	}
 	
 	public String toString() {
-		return getNum()+" "+getValue();
+		return "("+getNum()+" "+getValue()+")";
 	}
 }
