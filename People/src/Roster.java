@@ -24,16 +24,16 @@ public class Roster {
 	}
 	
 	public ArrayList<String> getMajors(){
-		ArrayList<String> names = new ArrayList<String>();
+		ArrayList<String> majors = new ArrayList<String>();
 		for(int i = 0; i < roster.size(); i++) {
-			if(!names.contains(roster.get(i).getName()))
-				names.add(roster.get(i).getName());
+			if(!majors.contains(roster.get(i).getMajor()))
+				majors.add(roster.get(i).getMajor());
 		}
-		return names;
+		return majors;
 	}
 	
-	public List<Student> nameContains(String str){
-		List<Student> names = new ArrayList<Student>();
+	public ArrayList<Student> nameContains(String str){
+		ArrayList<Student> names = new ArrayList<Student>();
 		for(int i = 0; i < roster.size(); i++) {
 			if(roster.get(i).getName().contains(str))
 				names.add(roster.get(i));
@@ -44,10 +44,18 @@ public class Roster {
 	public Roster getNamesBefore(String str){
 		List<Student> students = new ArrayList<Student>();
 		for(int i = 0; i < roster.size(); i++) {
-			if(roster.get(i).getName().toLowerCase().compareTo(str) < 0)
+			if(roster.get(i).getName().toLowerCase().compareTo(str.toLowerCase()) < 0)
 				students.add(roster.get(i));
 		}
-		return new Roster(students, "temp");
+		return new Roster(students, getClassName());
+	}
+	
+	public String toString() {
+		String str = this.getClassName()+": \n";
+		for(Student temp: roster) {
+			str+=temp+"\n";
+		}
+		return str;
 	}
 	
 }
