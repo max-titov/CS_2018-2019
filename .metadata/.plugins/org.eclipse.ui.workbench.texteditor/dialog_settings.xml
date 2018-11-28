@@ -2,12 +2,14 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="false" key="isRegEx"/>
-		<item value="e" key="selection"/>
+		<item value="int" key="selection"/>
 		<item value="true" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="true" key="wrap"/>
 		<item value="false" key="wholeword"/>
 		<list key="findhistory">
+			<item value="long"/>
+			<item value="int"/>
 			<item value="arg0"/>
 			<item value="dealer.addMoney"/>
 			<item value="MoneyMadeThisRound"/>
@@ -21,10 +23,10 @@
 			<item value="g"/>
 			<item value="image"/>
 			<item value="drawCard"/>
-			<item value="graphics"/>
-			<item value="paint"/>
 		</list>
 		<list key="replacehistory">
+			<item value="int"/>
+			<item value="long"/>
 			<item value="e"/>
 			<item value="MoneyThisRound"/>
 			<item value="moneyThisRound"/>
